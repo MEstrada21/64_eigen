@@ -6,8 +6,7 @@
 #include <sstream>
 #include <Eigen/Dense>
 using namespace std;
-using Eigen::MatrixXd;
-
+using namespace Eigen;
 
 //function that reads and parse a comma delimited file into a vector of vectors of strings and doubles
 MatrixXd parseUniverse(string path)
@@ -245,9 +244,26 @@ int main(int argc, const char *argv[])
     MatrixXd correlationMatrix = parseCorrelation(argv[2]);
 
     MatrixXd covars = convertCorrelationToCovariance(&correlationMatrix, &universe);
-    // create b: VectorXd
-    VectorXd w = (covars.transpose() * covars).ldlt().solve(covars.transpose() * b)
-    cout << w << endl;
-    // MatrixXd stdDev = covars.cwiseSqrt();
-    // cout << stdDev << endl;
+    for (int i = 1; i <= 26; i++) {
+      cout << "------" << endl;
+      VectorXd b = VectorXd::Zero(covars.cols());
+      b(covars.cols() - 2) = 1.0;
+      b(covars.cols() - 1)= i * 0.01;
+
+      cout << i << endl;
+      // break;
+      VectorXd w = (covars.transpose() * covars).ldlt().solve(covars.transpose() * b);
+      cout << "--- weights" << endl;
+      cout << w << endl;
+      VectorXd expectedReturn = covars * w;
+      MatrixXd portfolioVariance = covars * w * w.transpose();
+      cout << "---expected return" << endl;
+      cout << expectedReturn << endl;
+      cout << "---port var" << endl;
+      cout << portfolioVariance << endl;
+      cout << "---port volitility" << endl;
+      cout << portfolioVariance.cwiseSqrt() << endl;
+    }
+    // what do I do here?
+    // what goes here?
 }
